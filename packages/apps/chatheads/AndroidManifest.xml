@@ -43,7 +43,7 @@
         </service>
         <service
             android:name=".TileSettingsService"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@drawable/turn_on"
             android:label="@string/my_tile_label"
            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
@@ -52,4 +52,3 @@
         </service>        
     </application>
 </manifest>
-
