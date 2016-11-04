@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.Icon;
 import android.service.quicksettings.TileService;
 import android.util.Log;
+import android.content.Intent;
 
 public class TileSettingsService extends TileService {
     private final int STATE_OFF = 0;
@@ -38,10 +39,14 @@ public class TileSettingsService extends TileService {
 	        Icon icon;
 	        if (toggleState == STATE_ON) {
 	            toggleState = STATE_OFF;
-	            icon =  Icon.createWithResource(getApplicationContext(), R.drawable.ic_launcher);
+	            icon =  Icon.createWithResource(getApplicationContext(), R.drawable.turn_on);
+                /*stop the service*/
+                stopService(new Intent(getApplication(), ChatHeadService.class));
 	        } else {
+                /*turn on the service*/
 	            toggleState = STATE_ON;
-	            icon = Icon.createWithResource(getApplicationContext(), R.drawable.ic_launcher);
+	            icon = Icon.createWithResource(getApplicationContext(), R.drawable.turn_off);
+                startService(new Intent(getApplication(), ChatHeadService.class));
 	        }
 	        getQsTile().setIcon(icon);
 	        getQsTile().updateTile();
