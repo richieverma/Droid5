@@ -114,7 +114,7 @@ public class ChatHeadService extends Service {
 
 
             				Log.v("ChatHeadService", "TargetIntentSize"+ Integer.toString(targetedShareIntents.size()));
-					Intent chooserIntent = Intent.createChooser(targetedShareIntents.remove(0), "Select Overlay App");
+					Intent chooserIntent = Intent.createChooser(targetedShareIntents.get(0), "Select Overlay App");
 					chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, targetedShareIntents.toArray(new Parcelable[targetedShareIntents.size()]));
 					startActivity(chooserIntent);
 
