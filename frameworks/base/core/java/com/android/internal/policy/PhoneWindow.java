@@ -1,4 +1,4 @@
-/*
+  /*
  * Copyright (C) 2006 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -108,6 +108,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.LinearLayout;
 import android.app.Activity;
+import android.view.Display;
+
 
 
 /**
@@ -413,26 +415,16 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         // decor, when theme attributes and the like are crystalized. Do not check the feature
         // before this happens.
 
-        Log.v("PhoneWindowLog", "Userlog - Inside setContentView");
-        Log.v("PhoneWindowLog", "Userlog - setContentView layoutResID : "+layoutResID);
-        Log.v("PhoneWindowLog", "Userlog - mContentParent = "+mContentParent);
-        Log.v("PhoneWindowLog", "Userlog - mOverlayParentId = "+mOverlayParentId);
-
-
-/*
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);//initialize the layout inflater
-        View firstView = inflater.inflate(layoutResID, null); // inflate firstview.xml layout file
-        Log.v("PhoneWindowLog", "Userlog - firstView = "+firstView);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(10,10);
-        firstView.setLayoutParams(layoutParams);
-        Log.v("PhoneWindowLog", "Userlog - Manually setting layoutParams");
-        Activity host = (Activity) firstView.getContext();
-        Log.v("PhoneWindowLog", "Userlog - Context from view : "+host.getCallingPackage());
-
-        */
+        initializeSetContentView(layoutResID);
 
         if (mContentParent == null) {
             installDecor();
+            /*
+            if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+              Log.v("PhoneWindowLog", "Userlog - Calling onMultiWindowModeChanged() in setContentView");
+                this.onMultiWindowModeChanged();
+            }
+            */
         } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
             mContentParent.removeAllViews();
         }
@@ -443,7 +435,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             transitionTo(newScene);
         } else {
             mLayoutInflater.inflate(layoutResID, mContentParent);
-
+            /*
             if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
               View contentFrame = ((ViewGroup)findViewById(ID_ANDROID_CONTENT)).getChildAt(0);
               Log.v("PhoneWindowLog", "Modifying setContentView to change FrameLayout ");
@@ -451,6 +443,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
               //frameParams.gravity = Gravity.CENTER;
               contentFrame.setLayoutParams(frameParams);
             }
+            */
         }
         mContentParent.requestApplyInsets();
         final Callback cb = getCallback();
@@ -458,6 +451,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             cb.onContentChanged();
         }
         mContentParentExplicitlySet = true;
+
+        //getContext().enterPictureInPictureMode()
     }
 
     @Override
@@ -470,8 +465,17 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         // Note: FEATURE_CONTENT_TRANSITIONS may be set in the process of installing the window
         // decor, when theme attributes and the like are crystalized. Do not check the feature
         // before this happens.
+
+        initializeSetContentView(view, params);
+
         if (mContentParent == null) {
             installDecor();
+            /*
+            if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+              Log.v("PhoneWindowLog", "Userlog - Calling onMultiWindowModeChanged() in setContentView");
+                this.onMultiWindowModeChanged();
+            }
+            */
         } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
             mContentParent.removeAllViews();
         }
@@ -491,6 +495,36 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         mContentParentExplicitlySet = true;
     }
 
+    /* User defined function
+    Preprocessing before setContentView is called */
+    public void initializeSetContentView(int layoutResID){
+      Log.v("PhoneWindowLog", "Userlog - Inside setContentView");
+      //Log.v("PhoneWindowLog", "Userlog - setContentView layoutResID : "+layoutResID);
+      Log.v("PhoneWindowLog", "Userlog - mContentParent = "+mContentParent);
+      //Log.v("PhoneWindowLog", "Userlog - openInOverlayWindow = "+openInOverlayWindow);
+
+    }
+
+    /* User defined function
+    Preprocessing before setContentView is called */
+    public void initializeSetContentView(View view, ViewGroup.LayoutParams params){
+
+      Log.v("PhoneWindowLog", "Userlog - Inside setContentView");
+      Log.v("PhoneWindowLog", "Userlog - setContentView view : "+view);
+      //Log.v("PhoneWindowLog", "Userlog - setContentView ViewGroup.LayoutParams : "+params);
+
+      Log.v("PhoneWindowLog", "Userlog - mContentParent = "+mContentParent);
+      //Log.v("PhoneWindowLog", "Userlog - openInOverlayWindow = "+openInOverlayWindow);
+/*
+      if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+        Log.v("PhoneWindowLog", "Userlog - Trying to set theme programmatically");
+        getContext().setTheme(android.R.style.Theme_Dialog);
+
+      }
+      */
+    }
+
+
   /* User defined function
   Set mOverlayParent to the ViewGroup of the OverlayActivity */
     @Override
@@ -500,7 +534,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         if(mOverlayParent==null){
           mOverlayParentId = layoutResID;
           mOverlayParent = ((ViewGroup) getDecorView().getRootView().findViewById(layoutResID));
-          Log.v("PhoneWindowLog", "Userlog - mOverlayParent set to : "+mOverlayParent);
+          //Log.v("PhoneWindowLog", "Userlog - mOverlayParent set to : "+mOverlayParent);
         }
     }
 
@@ -527,6 +561,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
     @Override
     public void addContentView(View view, ViewGroup.LayoutParams params) {
+      Log.v("PhoneWindowLog", "Userlog - addContentView called");
         if (mContentParent == null) {
             installDecor();
         }
@@ -577,9 +612,17 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         return mIsFloating;
     }
 
+    @Override
     public boolean isTranslucent() {
         return mIsTranslucent;
     }
+
+    /* User defined method for setting mIsTranslucent
+    */
+    public void setIsTranslucent(boolean value) {
+        this.mIsTranslucent = value;
+    }
+
 
     /**
      * @return Whether the window is currently showing the wallpaper.
@@ -786,6 +829,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
     @Override
     public void onMultiWindowModeChanged() {
         if (mDecor != null) {
+          Log.v("PhoneWindowLog", "Userlog - onMultiWindowModeChanged() called with mDecor!=null");
             mDecor.onConfigurationChanged(getContext().getResources().getConfiguration());
         }
     }
@@ -1634,6 +1678,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         } else {
             return;
         }
+        Log.e("PhoneWindowLog", "onDrawableChanged called with alpha : "+alpha);
 
         if (drawable != null) {
             drawable.setAlpha(alpha);
@@ -2404,6 +2449,10 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             } else {
                 context = new DecorContext(applicationContext, getContext().getResources());
                 if (mTheme != -1) {
+                  if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+                    Log.v("PhoneWindowLog", "Userlog - setTheme mIsTranslucent after : "+mIsTranslucent);
+                    context.setTheme(com.android.internal.R.style.Theme_Translucent);
+                  }
                     context.setTheme(mTheme);
                 }
             }
@@ -2418,6 +2467,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
         TypedArray a = getWindowStyle();
         Log.v("PhoneWindowLog", "Userlog - In generateLayout()");
+        Log.v("PhoneWindowLog", "Userlog - Contents of the typed array : "+a.toString());
+
         if (false) {
             System.out.println("From style:");
             String s = "Attrs:";
@@ -2429,66 +2480,94 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         }
 
         mIsFloating = a.getBoolean(R.styleable.Window_windowIsFloating, false);
+        /*
+        if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+            mIsFloating = true;
+            Log.v("PhoneWindowLog", "Userlog - mIsFloating set explicitly");
+        }
+        */
         int flagsToUpdate = (FLAG_LAYOUT_IN_SCREEN|FLAG_LAYOUT_INSET_DECOR)
                 & (~getForcedWindowFlags());
         if (mIsFloating) {
+          Log.v("PhoneWindowLog", "Userlog - if mIsFloating");
             setLayout(WRAP_CONTENT, WRAP_CONTENT);
             setFlags(0, flagsToUpdate);
         } else {
             setFlags(FLAG_LAYOUT_IN_SCREEN|FLAG_LAYOUT_INSET_DECOR, flagsToUpdate);
         }
 
-        if (a.getBoolean(R.styleable.Window_windowNoTitle, false)) {
+        if (a.getBoolean(R.styleable.Window_windowNoTitle, false) ) {
+          Log.v("PhoneWindowLog", "Userlog - FEATURE_NO_TITLE set");
             requestFeature(FEATURE_NO_TITLE);
         } else if (a.getBoolean(R.styleable.Window_windowActionBar, false)) {
             // Don't allow an action bar if there is no title.
+            Log.v("PhoneWindowLog", "Userlog - Window_windowActionBar set");
             requestFeature(FEATURE_ACTION_BAR);
         }
 
         if (a.getBoolean(R.styleable.Window_windowActionBarOverlay, false)) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowActionBarOverlay set");
             requestFeature(FEATURE_ACTION_BAR_OVERLAY);
         }
 
         if (a.getBoolean(R.styleable.Window_windowActionModeOverlay, false)) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowActionModeOverlay set");
             requestFeature(FEATURE_ACTION_MODE_OVERLAY);
         }
 
         if (a.getBoolean(R.styleable.Window_windowSwipeToDismiss, false)) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowSwipeToDismiss set");
             requestFeature(FEATURE_SWIPE_TO_DISMISS);
         }
 
-        if (a.getBoolean(R.styleable.Window_windowFullscreen, false)) {
+        if (a.getBoolean(R.styleable.Window_windowFullscreen, false) || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowFullscreen set");
+          if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+            setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN);
+          }
+          else{
             setFlags(FLAG_FULLSCREEN, FLAG_FULLSCREEN & (~getForcedWindowFlags()));
+          }
         }
 
         if (a.getBoolean(R.styleable.Window_windowTranslucentStatus,
-                false)) {
+                false) || (openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow())) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowTranslucentStatus set First parameter : "+FLAG_TRANSLUCENT_STATUS+", Second parameter : "+(FLAG_TRANSLUCENT_STATUS & (~getForcedWindowFlags())));
             setFlags(FLAG_TRANSLUCENT_STATUS, FLAG_TRANSLUCENT_STATUS
                     & (~getForcedWindowFlags()));
         }
 
         if (a.getBoolean(R.styleable.Window_windowTranslucentNavigation,
-                false)) {
+                false) || (openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()) ) {
+            Log.v("PhoneWindowLog", "Userlog - Window_windowTranslucentNavigation set First parameter : "+FLAG_TRANSLUCENT_NAVIGATION+", Second parameter : "+(FLAG_TRANSLUCENT_NAVIGATION & (~getForcedWindowFlags())));
             setFlags(FLAG_TRANSLUCENT_NAVIGATION, FLAG_TRANSLUCENT_NAVIGATION
                     & (~getForcedWindowFlags()));
         }
 
         if (a.getBoolean(R.styleable.Window_windowOverscan, false)) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowOverscan set");
             setFlags(FLAG_LAYOUT_IN_OVERSCAN, FLAG_LAYOUT_IN_OVERSCAN&(~getForcedWindowFlags()));
         }
 
         if (a.getBoolean(R.styleable.Window_windowShowWallpaper, false)) {
+          Log.v("PhoneWindowLog", "Userlog - Window_windowShowWallpaper set");
             setFlags(FLAG_SHOW_WALLPAPER, FLAG_SHOW_WALLPAPER&(~getForcedWindowFlags()));
         }
 
         if (a.getBoolean(R.styleable.Window_windowEnableSplitTouch,
                 getContext().getApplicationInfo().targetSdkVersion
                         >= android.os.Build.VERSION_CODES.HONEYCOMB)) {
+            Log.v("PhoneWindowLog", "Userlog - Window_windowEnableSplitTouch set");
             setFlags(FLAG_SPLIT_TOUCH, FLAG_SPLIT_TOUCH&(~getForcedWindowFlags()));
         }
 
         a.getValue(R.styleable.Window_windowMinWidthMajor, mMinWidthMajor);
         a.getValue(R.styleable.Window_windowMinWidthMinor, mMinWidthMinor);
+
+        Log.v("PhoneWindowLog", "Userlog - mMinWidthMajor : "+ mMinWidthMajor.coerceToString());
+        Log.v("PhoneWindowLog", "Userlog - mMinWidthMinor : "+ mMinWidthMinor.coerceToString());
+
+
         if (DEBUG) Log.d(TAG, "Min width minor: " + mMinWidthMinor.coerceToString()
                 + ", major: " + mMinWidthMajor.coerceToString());
         if (a.hasValue(R.styleable.Window_windowFixedWidthMajor)) {
@@ -2514,11 +2593,17 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         if (a.getBoolean(R.styleable.Window_windowContentTransitions, false)) {
             requestFeature(FEATURE_CONTENT_TRANSITIONS);
         }
-        if (a.getBoolean(R.styleable.Window_windowActivityTransitions, false)) {
+        if (a.getBoolean(R.styleable.Window_windowActivityTransitions, false) && !(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow())) {
             requestFeature(FEATURE_ACTIVITY_TRANSITIONS);
         }
 
         mIsTranslucent = a.getBoolean(R.styleable.Window_windowIsTranslucent, false);
+        Log.v("PhoneWindowLog", "Userlog - Previous value of mIsTranslucent : "+mIsTranslucent);
+
+        if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+          mIsTranslucent = true;
+          Log.v("PhoneWindowLog", "Userlog - Setting mIsTranslucent true manually ");
+        }
 
         final Context context = getContext();
         final int targetSdk = context.getApplicationInfo().targetSdkVersion;
@@ -2553,7 +2638,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 setFlags(FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS,
                         FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS & ~getForcedWindowFlags());
             }
-            if (mDecor.mForceWindowDrawsStatusBarBackground) {
+            if (mDecor.mForceWindowDrawsStatusBarBackground && !(getContext().getApplicationContext().getGlobalOpenInOverlayWindow())) {
+              Log.v("PhoneWindowLog", "Userlog - Trying to disable mForceWindowDrawsStatusBarBackground ");
                 params.privateFlags |= PRIVATE_FLAG_FORCE_DRAW_STATUS_BAR_BACKGROUND;
             }
         }
@@ -2566,7 +2652,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 >= android.os.Build.VERSION_CODES.HONEYCOMB) {
             if (a.getBoolean(
                     R.styleable.Window_windowCloseOnTouchOutside,
-                    false)) {
+                    false) || openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()) {
+                      Log.v("PhoneWindowLog", "Userlog - Setting CloseOnTouchOutside true manually ");
                 setCloseOnTouchOutsideIfNotSet(true);
             }
         }
@@ -2578,7 +2665,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         }
 
         if (a.getBoolean(R.styleable.Window_backgroundDimEnabled,
-                mIsFloating)) {
+                mIsFloating) && !(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow())) {
             /* All dialogs should have the window dimmed */
             if ((getForcedWindowFlags()&WindowManager.LayoutParams.FLAG_DIM_BEHIND) == 0) {
                 params.flags |= WindowManager.LayoutParams.FLAG_DIM_BEHIND;
@@ -2586,23 +2673,50 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             if (!haveDimAmount()) {
                 params.dimAmount = a.getFloat(
                         android.R.styleable.Window_backgroundDimAmount, 0.5f);
+                Log.v("PhoneWindowLog", "Userlog - Window_backgroundDimAmount "+params.dimAmount);
             }
         }
 
-        if (params.windowAnimations == 0) {
+        if (params.windowAnimations == 0 && !(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow())) {
             params.windowAnimations = a.getResourceId(
                     R.styleable.Window_windowAnimationStyle, 0);
+        }
+
+        Log.v("PhoneWindowLog", "Userlog - Params flag fullscreen :" + params.FLAG_FULLSCREEN);
+        Log.v("PhoneWindowLog", "Userlog - Params preferred display mode :" + params.preferredDisplayModeId);
+        Log.v("PhoneWindowLog", "Userlog - Params windowAnimations :" + params.windowAnimations);
+        Log.v("PhoneWindowLog", "Userlog - Params type :" + params.type);
+        Log.v("PhoneWindowLog", "Userlog - Params flags :" + params.flags);
+        Log.v("PhoneWindowLog", "Userlog - Params alpha :" + params.alpha);
+
+        //Log.v("PhoneWindowLog", "Userlog - Params getSupportedModes :" + params.getSupportedModes());
+        //Log.v("PhoneWindowLog", "Userlog - Params getModeId :" + params.getModeId());
+
+
+        if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+          params.width = 250;
+          params.height = 340;
+          params.gravity = Gravity.CENTER;
+          params.dimAmount = 0.0f;
+          setFlags(PRIVATE_FLAG_INHERIT_TRANSLUCENT_DECOR, PRIVATE_FLAG_INHERIT_TRANSLUCENT_DECOR);
+          params.type = TYPE_APPLICATION_PANEL;
+          Log.v("PhoneWindowLog", "Userlog - Manually setting window parameters");
+          setAttributes(params);
         }
 
         // The rest are only done if this window is not embedded; otherwise,
         // the values are inherited from our container.
         if (getContainer() == null) {
+          Log.v("PhoneWindowLog", "Userlog - getContainer() == null ");
             if (mBackgroundDrawable == null) {
+              Log.v("PhoneWindowLog", "Userlog - mBackgroundDrawable == null ");
                 if (mBackgroundResource == 0) {
+                  Log.v("PhoneWindowLog", "Userlog - mBackgroundResource == 0 ");
                     mBackgroundResource = a.getResourceId(
                             R.styleable.Window_windowBackground, 0);
                 }
                 if (mFrameResource == 0) {
+                  Log.v("PhoneWindowLog", "Userlog - mFrameResource == 0 ");
                     mFrameResource = a.getResourceId(R.styleable.Window_windowFrame, 0);
                 }
                 mBackgroundFallbackResource = a.getResourceId(
@@ -2614,6 +2728,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 }
             }
             if (mLoadElevation) {
+              Log.v("PhoneWindowLog", "Userlog - mLoadElevation set ");
                 mElevation = a.getDimension(R.styleable.Window_windowElevation, 0);
             }
             mClipToOutline = a.getBoolean(R.styleable.Window_windowClipToOutline, false);
@@ -2626,6 +2741,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         int features = getLocalFeatures();
         // System.out.println("Features: 0x" + Integer.toHexString(features));
         if ((features & (1 << FEATURE_SWIPE_TO_DISMISS)) != 0) {
+          Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_swipe_dismiss ");
             layoutResource = R.layout.screen_swipe_dismiss;
         } else if ((features & ((1 << FEATURE_LEFT_ICON) | (1 << FEATURE_RIGHT_ICON))) != 0) {
             if (mIsFloating) {
@@ -2633,8 +2749,10 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 getContext().getTheme().resolveAttribute(
                         R.attr.dialogTitleIconsDecorLayout, res, true);
                 layoutResource = res.resourceId;
+                Log.v("PhoneWindowLog", "Userlog - layoutResource = res.resourceId ");
             } else {
                 layoutResource = R.layout.screen_title_icons;
+                Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_title_icons ");
             }
             // XXX Remove this once action bar supports these features.
             removeFeature(FEATURE_ACTION_BAR);
@@ -2644,6 +2762,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             // Special case for a window with only a progress bar (and title).
             // XXX Need to have a no-title version of embedded windows.
             layoutResource = R.layout.screen_progress;
+            Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_progress ");
             // System.out.println("Progress!");
         } else if ((features & (1 << FEATURE_CUSTOM_TITLE)) != 0) {
             // Special case for a window with a custom title.
@@ -2653,8 +2772,10 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 getContext().getTheme().resolveAttribute(
                         R.attr.dialogCustomTitleDecorLayout, res, true);
                 layoutResource = res.resourceId;
+                Log.v("PhoneWindowLog", "Userlog - layoutResource = res.resourceId ");
             } else {
                 layoutResource = R.layout.screen_custom_title;
+                Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_custom_title ");
             }
             // XXX Remove this once action bar supports these features.
             removeFeature(FEATURE_ACTION_BAR);
@@ -2666,48 +2787,73 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 getContext().getTheme().resolveAttribute(
                         R.attr.dialogTitleDecorLayout, res, true);
                 layoutResource = res.resourceId;
+                Log.v("PhoneWindowLog", "Userlog - layoutResource = res.resourceId ");
             } else if ((features & (1 << FEATURE_ACTION_BAR)) != 0) {
                 layoutResource = a.getResourceId(
                         R.styleable.Window_windowActionBarFullscreenDecorLayout,
                         R.layout.screen_action_bar);
+              Log.v("PhoneWindowLog", "Userlog - layoutResource = a.getResourceId(R.styleable.Window_windowActionBarFullscreenDecorLayout,R.layout.screen_action_bar)");
             } else {
                 layoutResource = R.layout.screen_title;
+                Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_title");
             }
             // System.out.println("Title!");
         } else if ((features & (1 << FEATURE_ACTION_MODE_OVERLAY)) != 0) {
             layoutResource = R.layout.screen_simple_overlay_action_mode;
+            Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_simple_overlay_action_mode");
         } else {
             // Embedded, so no decoration is needed.
             layoutResource = R.layout.screen_simple;
             // System.out.println("Simple!");
+            Log.v("PhoneWindowLog", "Userlog - layoutResource = R.layout.screen_simple");
         }
+
+        /** HERE - THIS IS WHERE THE LAYOUT GETS CHOSEN**/
 
         mDecor.startChanging();
         mDecor.onResourcesLoaded(mLayoutInflater, layoutResource);
         ViewGroup contentParent = null ;
+
+
         if(!(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow())){
             contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
         }
         else{
             contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT).getParent();
             FrameLayout contentFrame = (FrameLayout)(findViewById(ID_ANDROID_CONTENT));
+            FrameLayout rootView = (FrameLayout) contentParent.getRootView();
 
             Log.v("PhoneWindowLog", "Userlog - contentParent : "+contentParent);
             //contentParent = (ViewGroup) contentParent.getChildAt(2);
             Log.v("PhoneWindowLog", "Userlog - contentParent (child): "+contentParent.getChildCount());
             Log.v("PhoneWindowLog", "Userlog - contentFrame : "+contentFrame);
+            //Drawable background = contentFrame.getBackground();
 
-            /*
-            View contentFrameView = (contentParent.getChildAt(0));
-            ViewGroup.LayoutParams  contentFrameLayoutParams = (ViewGroup.LayoutParams) contentFrameView.getLayoutParams();
-            contentFrameLayoutParams.height = 320;
-            contentFrameLayoutParams.width = 240;
-            contentFrameView.setGravity(Gravity.CENTER);
-            contentFrameView.getBackground().setAlpha(0);
-            getWindowManager().updateViewLayout(contentFrameView,contentFrameLayoutParams);
-            */
+
             //FrameLayout parentLayout = (FrameLayout) contentParent;
             //contentParent.setBackgroundColor(0);
+
+            /*HERE*/
+            rootView.setLayoutParams(new FrameLayout.LayoutParams(100,100,Gravity.CENTER));
+            Log.v("PhoneWindowLog", "Getting all children of rootView");
+
+            int rootChildCount = rootView.getChildCount();
+
+/*
+            FrameLayout userFrame = new FrameLayout(getContext());
+            FrameLayout.LayoutParams userFrameParams=new FrameLayout.LayoutParams(250,330,Gravity.CENTER);
+            userFrame.setLayoutParams(userFrameParams);
+*/
+            for(int i=0;i<rootChildCount;i++){
+              ViewGroup rootChild = (ViewGroup) rootView.getChildAt(i);
+              //mLayoutInflater.inflate(rootChild.getId(), userFrame);
+              Log.v("PhoneWindowLog", "Userlog - rootChild " + i + " : "+rootChild);
+            }
+            //rootView.removeAllViews();
+            //rootView.addView(userFrame);
+            //mLayoutInflater.inflate(userFrame.getId(), rootView);
+
+            //Log.v("PhoneWindowLog", "Added userFrame as child of root");
 
 
             if(contentParent instanceof FrameLayout){
@@ -2726,6 +2872,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
               Log.v("PhoneWindowLog", "Userlog - Neither LinearLayout or FrameLayout ");
             }
 
+            //this.setBackgroundDrawable()
             contentParent = (ViewGroup)contentFrame;
             //ViewGroup overlayViewGroup1 = (ViewGroup)findViewById(R.id.overlay);
             //Log.v("PhoneWindowLog", "Userlog - overlayViewGroup1 : "+overlayViewGroup1);
@@ -2733,6 +2880,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             //Log.v("PhoneWindowLog", "Userlog - overlayViewGroup2 : "+overlayViewGroup2);
 
         }
+
         //contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
 
         //contentParent = (ViewGroup)findViewById(ID_ANDROID_CONTENT);
@@ -2755,12 +2903,29 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
         // Remaining setup -- of background and title -- that only applies
         // to top-level windows.
         if (getContainer() == null) {
+          Log.v("PhoneWindowLog", "Userlog - getContainer() == null ");
             final Drawable background;
             if (mBackgroundResource != 0) {
                 background = getContext().getDrawable(mBackgroundResource);
+                Log.v("PhoneWindowLog", "Userlog - background = getContext().getDrawable(mBackgroundResource) : "+background);
             } else {
                 background = mBackgroundDrawable;
+                Log.v("PhoneWindowLog", "Userlog - background = mBackgroundDrawable : "+background);
             }
+
+
+            if((openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow())){
+              //mDecor.setBackgroundColor(Color.GREEN);
+              Log.v("PhoneWindowLog", "Userlog - Manaully setting background color");
+              //mDecor.setBackgroundColor(Color.TRANSPARENT);
+              Display disp = getWindowManager().getDefaultDisplay();
+              Log.v("PhoneWindowLog", "Userlog - Display isValid : "+disp.isValid());
+              Log.v("PhoneWindowLog", "Userlog - Display getState : "+disp.getState());
+
+              //background.setAlpha(0);
+              //background.setOpacity(-2);
+            }
+
             mDecor.setWindowBackground(background);
 
             final Drawable frame;
@@ -2769,6 +2934,13 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             } else {
                 frame = null;
             }
+            Log.v("PhoneWindowLog", "Userlog - Background : "+background);
+            if(background!=null){
+              Log.v("PhoneWindowLog", "Userlog - Background alpha : "+background.getAlpha());
+              Log.v("PhoneWindowLog", "Userlog - Background opacity : "+background.getOpacity());
+            }
+            Log.v("PhoneWindowLog", "Userlog - Frame : "+frame);
+
             mDecor.setWindowFrame(frame);
 
             mDecor.setElevation(mElevation);
@@ -2797,7 +2969,15 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
     private void installDecor() {
         mForceDecorInstall = false;
 
+        /*
         Log.v("PhoneWindowLog", "Userlog - Install decor called");
+        if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+          Log.v("PhoneWindowLog", "Userlog - Trying to set theme programmatically within installDecor()");
+          //getContext().setTheme(com.android.internal.R.style.Theme_Translucent);
+          //getContext().setTheme(com.android.internal.R.style.Theme_DeviceDefault_Dialog_NoFrame);
+
+        }
+*/
 
         if (mDecor == null) {
             Log.v("PhoneWindowLog", "Userlog - mDecor == null");
@@ -2865,7 +3045,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 Log.v("PhoneWindowLog", "Userlog - decorContentParent == null");
                 mTitleView = (TextView) findViewById(R.id.title);
                 if (mTitleView != null) {
-                    Log.v("PhoneWindowLog", "Userlog - decorContentParent == null");
+                    Log.v("PhoneWindowLog", "Userlog - mTitleView != null");
                     if ((getLocalFeatures() & (1 << FEATURE_NO_TITLE)) != 0) {
                         final View titleContainer = findViewById(R.id.title_container);
                         if (titleContainer != null) {
@@ -2881,12 +3061,14 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
             }
 
             if (mDecor.getBackground() == null && mBackgroundFallbackResource != 0) {
+                Log.v("PhoneWindowLog", "Userlog - mDecor.getBackground() == null && mBackgroundFallbackResource != 0)");
                 mDecor.setBackgroundFallback(mBackgroundFallbackResource);
             }
 
             // Only inflate or create a new TransitionManager if the caller hasn't
             // already set a custom one.
             if (hasFeature(FEATURE_ACTIVITY_TRANSITIONS)) {
+              Log.v("PhoneWindowLog", "Userlog - Has FEATURE_ACTIVITY_TRANSITIONS");
                 if (mTransitionManager == null) {
                     final int transitionRes = getWindowStyle().getResourceId(
                             R.styleable.Window_windowContentTransitionManager,
@@ -2937,6 +3119,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 }
             }
         }
+
     }
 
     private Transition getTransition(Transition currentValue, Transition defaultValue, int id) {
@@ -3185,6 +3368,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
                 new SwipeDismissLayout.OnSwipeProgressChangedListener() {
                     private static final float ALPHA_DECREASE = 0.5f;
                     private boolean mIsTranslucent = false;
+
                     @Override
                     public void onSwipeProgressChanged(
                             SwipeDismissLayout layout, float progress, float translate) {
@@ -3204,6 +3388,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
                     @Override
                     public void onSwipeCancelled(SwipeDismissLayout layout) {
+
                         WindowManager.LayoutParams newParams = getAttributes();
                         newParams.x = 0;
                         newParams.alpha = 1;
@@ -3943,10 +4128,15 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
 
     @Override
     public void setTheme(int resid) {
+      Log.v("PhoneWindowLog", "Userlog - setTheme mIsTranslucent before : "+mIsTranslucent);
         mTheme = resid;
         if (mDecor != null) {
             Context context = mDecor.getContext();
             if (context instanceof DecorContext) {
+              if(openInOverlayWindow || getContext().getApplicationContext().getGlobalOpenInOverlayWindow()){
+                Log.v("PhoneWindowLog", "Userlog - setTheme mIsTranslucent after : "+mIsTranslucent);
+                context.setTheme(com.android.internal.R.style.Theme_Translucent);
+              }
                 context.setTheme(resid);
             }
         }
