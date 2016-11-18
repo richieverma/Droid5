@@ -10,6 +10,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.content.ComponentName;
+import android.widget.Toast;
+import android.view.View.OnClickListener;
+import android.util.Log;
 
 public class ChatHeadService extends Service {
 
@@ -30,13 +33,20 @@ public class ChatHeadService extends Service {
 				WindowManager.LayoutParams.WRAP_CONTENT,
 				WindowManager.LayoutParams.WRAP_CONTENT,
 				WindowManager.LayoutParams.TYPE_PHONE,
-				WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+				WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM |
+				WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
 				PixelFormat.TRANSLUCENT);
 
 		params.gravity = Gravity.TOP | Gravity.LEFT;
 		params.x = 0;
 		params.y = 0;
 
+		chatHead.setOnClickListener(new View.OnClickListener() {
+		    @Override
+		    public void onClick(View v) {
+		        Log.v("chatHead","OnClickListener called");
+		    }
+		});
 		//this code is for dragging the chat head
 		chatHead.setOnTouchListener(new View.OnTouchListener() {
 			private int initialX;
@@ -44,14 +54,20 @@ public class ChatHeadService extends Service {
 			private float initialTouchX;
 			private float initialTouchY;
 
+			private int finalTouchX, finalTouchY;
+
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				switch (event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 					initialX = params.x;
 					initialY = params.y;
+
+
 					initialTouchX = event.getRawX();
 					initialTouchY = event.getRawY();
+					// Log.v("chatHeadTouch","DOWN_initialX " + initialX + "=" + initialY);
+					// Log.v("chatHeadTouch","DOWN_initialTouch " + event.getRawX() + "=" + event.getRawY());
 					return true;
 				case MotionEvent.ACTION_UP:
 					//Does not work
@@ -64,8 +80,14 @@ public class ChatHeadService extends Service {
 
 
 					//WORKS!
+					Log.v("chatHeadTouch","X_DIFF " + Math.abs(finalTouchX-initialX) );
+					Log.v("chatHeadTouch","Y_DIFF " + Math.abs(finalTouchY-initialY) );
+					if( Math.abs(finalTouchX-initialX) >= 1
+						|| Math.abs(finalTouchY-initialY) >= 1 ) {
+						return true;
+					}
 					final String OVERLAY_PACKAGE_NAME = "com.example.chatheads";
-    			final String OVERLAY_CLASS_NAME = "com.example.chatheads.OverlayActivity";
+    				final String OVERLAY_CLASS_NAME = "com.example.chatheads.OverlayActivity";
          			Intent intent = new Intent();
          			intent.setAction(Intent.ACTION_MAIN);
          			intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -81,20 +103,26 @@ public class ChatHeadService extends Service {
 							+ (int) (event.getRawX() - initialTouchX);
 					params.y = initialY
 							+ (int) (event.getRawY() - initialTouchY);
+
+					finalTouchX = params.x;
+					finalTouchY = params.y;
 					windowManager.updateViewLayout(chatHead, params);
 					return true;
 				}
 				return false;
 			}
 		});
+		chatHead.bringToFront();
+		chatHead.setClickable(true); 
 		windowManager.addView(chatHead, params);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (chatHead != null)
+		if (chatHead != null) 
 			windowManager.removeView(chatHead);
+		
 	}
 
 	@Override

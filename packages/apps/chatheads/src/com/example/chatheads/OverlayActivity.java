@@ -41,7 +41,7 @@ public class OverlayActivity extends Activity {
     Intent intent = new Intent();
     intent.setAction(Intent.ACTION_MAIN);
     intent.addCategory(Intent.CATEGORY_LAUNCHER);
-    intent.setComponent(new ComponentName(CLOCK_PACKAGE_NAME, CLOCK_CLASS_NAME));
+    intent.setComponent(new ComponentName(CALCULATOR_PACKAGE_NAME, CALCULATOR_CLASS_NAME));
 		intent.putExtra("parentId",R.layout.overlay_main);
 		//intent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT | Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
     startActivity(intent);
