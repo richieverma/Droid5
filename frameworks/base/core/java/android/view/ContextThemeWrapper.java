@@ -22,6 +22,8 @@ import android.content.ContextWrapper;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.util.Log;
+
 
 /**
  * A context wrapper that allows you to modify or replace the theme of the
@@ -183,7 +185,17 @@ public class ContextThemeWrapper extends ContextWrapper {
      *              applied to <var>theme</var>
      */
     protected void onApplyThemeResource(Resources.Theme theme, int resId, boolean first) {
-        theme.applyStyle(resId, true);
+
+
+        Log.v("ContextThemeWrapperLog", "Userlog - onApplyThemeResource called within ContextThemeWrapperLog theme : "+theme);
+        if(this.getApplicationContext().getGlobalOpenInOverlayWindow()){
+          Log.v("ContextThemeWrapperLog", "Userlog - onApplyThemeResource setting custom theme with windowIsTranslucent true");
+          theme.applyStyle(resId, true);
+          theme.applyStyle(com.android.internal.R.style.Theme_Translucent, false);
+        }
+        else{
+          theme.applyStyle(resId, true);
+        }
     }
 
     private void initializeTheme() {
@@ -198,4 +210,3 @@ public class ContextThemeWrapper extends ContextWrapper {
         onApplyThemeResource(mTheme, mThemeResource, first);
     }
 }
-
