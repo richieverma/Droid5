@@ -7,6 +7,8 @@ LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
 LOCAL_SDK_VERSION := current
 
+LOCAL_STATIC_JAVA_LIBRARIES := cr android-support-v4
+
 LOCAL_PACKAGE_NAME := chatheads
 
 include $(BUILD_PACKAGE)
