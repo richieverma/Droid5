@@ -909,12 +909,14 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if (getBackground() != drawable) {
             setBackgroundDrawable(drawable);
             if (drawable != null) {
+              Log.v("DecorViewLog", "Userlog - enforceNonTranslucentBackground called from setBackgroundDrawable with drawable!=null : "+(getContext().getApplicationContext().getGlobalOpenInOverlayWindow()));
                 mResizingBackgroundDrawable = enforceNonTranslucentBackground(drawable,
-                        mWindow.isTranslucent() || mWindow.isShowingWallpaper());
+                        (mWindow.isTranslucent() || mWindow.isShowingWallpaper() ||(getContext().getApplicationContext().getGlobalOpenInOverlayWindow())));
             } else {
+              Log.v("DecorViewLog", "Userlog - enforceNonTranslucentBackground called from setBackgroundDrawable with drawable==null : "+(getContext().getApplicationContext().getGlobalOpenInOverlayWindow()));
                 mResizingBackgroundDrawable = getResizingBackgroundDrawable(
                         getContext(), 0, mWindow.mBackgroundFallbackResource,
-                        mWindow.isTranslucent() || mWindow.isShowingWallpaper());
+                        (mWindow.isTranslucent() || mWindow.isShowingWallpaper() || (getContext().getApplicationContext().getGlobalOpenInOverlayWindow())));
             }
             if (mResizingBackgroundDrawable != null) {
                 mResizingBackgroundDrawable.getPadding(mBackgroundPadding);
@@ -1131,6 +1133,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
      */
     private void updateColorViewInt(final ColorViewState state, int sysUiVis, int color,
             int size, boolean verticalBar, int rightMargin, boolean animate, boolean force) {
+
         state.present = (sysUiVis & state.systemUiHideFlag) == 0
                 && (mWindow.getAttributes().flags & state.hideWindowFlag) == 0
                 && ((mWindow.getAttributes().flags & FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS) != 0
@@ -1357,8 +1360,11 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
             Drawable bg = getBackground();
             Drawable fg = getForeground();
             if (bg != null) {
+              Log.v("DecorViewLog", "Userlog - Background opacity: " + bg + ", foreground: " + fg);
+              //bg.setAlpha(0);
                 if (fg == null) {
                     opacity = bg.getOpacity();
+
                 } else if (mFramePadding.left <= 0 && mFramePadding.top <= 0
                         && mFramePadding.right <= 0 && mFramePadding.bottom <= 0) {
                     // If the frame padding is zero, then we can be opaque
@@ -1367,9 +1373,12 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     int bop = bg.getOpacity();
                     if (false)
                         Log.v(mLogTag, "Background opacity: " + bop + ", Frame opacity: " + fop);
-                    if (fop == PixelFormat.OPAQUE || bop == PixelFormat.OPAQUE) {
+
+                    if (fop == PixelFormat.TRANSLUCENT || bop == PixelFormat.TRANSLUCENT ) {
+                        opacity = PixelFormat.TRANSLUCENT;
+                    }  else if (fop == PixelFormat.OPAQUE || bop == PixelFormat.OPAQUE) {
                         opacity = PixelFormat.OPAQUE;
-                    } else if (fop == PixelFormat.UNKNOWN) {
+                    }  else if (fop == PixelFormat.UNKNOWN) {
                         opacity = bop;
                     } else if (bop == PixelFormat.UNKNOWN) {
                         opacity = fop;
@@ -1385,6 +1394,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     opacity = PixelFormat.TRANSLUCENT;
                 }
             }
+            Log.v("DecorViewLog", "Userlog - Background: " + bg + ", Frame: " + fg + ", Opacity: "+opacity);
+
             if (false)
                 Log.v(mLogTag, "Background: " + bg + ", Frame: " + fg);
         }
@@ -1556,6 +1567,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         // along with the main app window. Keeping mPrimaryActionModeView reference doesn't cause
         // app memory leaks because killMode() is called when the dismiss animation ends and from
         // cleanupPrimaryActionMode() invocation above.
+        Log.v("DecorViewLog", "Userlog - createStandaloneActionMode called");
         if (mPrimaryActionModeView == null || !mPrimaryActionModeView.isAttachedToWindow()) {
             if (mWindow.isFloating()) {
                 // Use the action bar theme.
@@ -1644,6 +1656,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     private void setHandledPrimaryActionMode(ActionMode mode) {
         endOnGoingFadeAnimation();
+        Log.v("DecorViewLog", "Userlog - setHandledPrimaryActionMode called");
+
         mPrimaryActionMode = mode;
         mPrimaryActionMode.invalidate();
         mPrimaryActionModeView.initForMode(mPrimaryActionMode);
@@ -1736,7 +1750,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
     protected void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         int workspaceId = getStackId();
-        if (mStackId != workspaceId) {
+        if (mStackId != workspaceId ) {
             mStackId = workspaceId;
             if (mDecorCaptionView == null && StackId.hasWindowDecor(mStackId)) {
                 // Configuration now requires a caption.
@@ -1783,6 +1797,8 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
                     new ViewGroup.MarginLayoutParams(MATCH_PARENT, MATCH_PARENT));
         } else {
 
+          /** HERE - THIS IS CHILD VIEWS OF ROOT (DecorView) GET INFLATED **/
+
             // Put it below the color views.
             addView(root, 0, new ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT));
         }
@@ -1794,7 +1810,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if (mResizingBackgroundDrawable == null) {
             mResizingBackgroundDrawable = getResizingBackgroundDrawable(getContext(),
                     mWindow.mBackgroundResource, mWindow.mBackgroundFallbackResource,
-                    mWindow.isTranslucent() || mWindow.isShowingWallpaper());
+                    mWindow.isTranslucent() || mWindow.isShowingWallpaper() || (getContext().getApplicationContext().getGlobalOpenInOverlayWindow()));
             if (mResizingBackgroundDrawable == null) {
                 // We shouldn't really get here as the background fallback should be always
                 // available since it is defaulted by the system.
@@ -1813,7 +1829,7 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
 
     // Free floating overlapping windows require a caption.
     private DecorCaptionView createDecorCaptionView(LayoutInflater inflater) {
-        DecorCaptionView decorCaptionView = null;
+          DecorCaptionView decorCaptionView = null;
         for (int i = getChildCount() - 1; i >= 0 && decorCaptionView == null; i--) {
             View view = getChildAt(i);
             if (view instanceof DecorCaptionView) {
@@ -1906,14 +1922,16 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
         if (backgroundRes != 0) {
             final Drawable drawable = context.getDrawable(backgroundRes);
             if (drawable != null) {
-                return enforceNonTranslucentBackground(drawable, windowTranslucent);
+              Log.v("DecorViewLog", "Userlog - enforceNonTranslucentBackground called from getResizingBackgroundDrawable (backgroundRes!=0) : "+(context.getApplicationContext().getGlobalOpenInOverlayWindow()));
+                return enforceNonTranslucentBackground(drawable, (windowTranslucent||(context.getApplicationContext().getGlobalOpenInOverlayWindow())));
             }
         }
 
         if (backgroundFallbackRes != 0) {
             final Drawable fallbackDrawable = context.getDrawable(backgroundFallbackRes);
             if (fallbackDrawable != null) {
-                return enforceNonTranslucentBackground(fallbackDrawable, windowTranslucent);
+              Log.v("DecorViewLog", "Userlog - enforceNonTranslucentBackground called from getResizingBackgroundDrawable (backgroundFallbackRes!=0) : "+(context.getApplicationContext().getGlobalOpenInOverlayWindow()));
+                return enforceNonTranslucentBackground(fallbackDrawable, (windowTranslucent||(context.getApplicationContext().getGlobalOpenInOverlayWindow())));
             }
         }
         return new ColorDrawable(Color.BLACK);
@@ -1925,7 +1943,10 @@ public class DecorView extends FrameLayout implements RootViewSurfaceTaker, Wind
      */
     private static Drawable enforceNonTranslucentBackground(Drawable drawable,
             boolean windowTranslucent) {
+
+        Log.v("DecorViewLog", "Userlog - enforceNonTranslucentBackground called with windowTranslucent: "+windowTranslucent);
         if (!windowTranslucent && drawable instanceof ColorDrawable) {
+          Log.v("DecorViewLog", "Userlog - enforceNonTranslucentBackground if block called");
             ColorDrawable colorDrawable = (ColorDrawable) drawable;
             int color = colorDrawable.getColor();
             if (Color.alpha(color) != 255) {

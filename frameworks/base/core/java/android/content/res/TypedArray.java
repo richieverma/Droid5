@@ -16,6 +16,7 @@
 
 package android.content.res;
 
+
 import android.annotation.AnyRes;
 import android.annotation.ColorInt;
 import android.annotation.Nullable;
@@ -31,6 +32,8 @@ import android.util.TypedValue;
 import com.android.internal.util.XmlUtils;
 
 import java.util.Arrays;
+
+import android.util.Log;
 
 /**
  * Container for an array of values that were retrieved with
@@ -306,6 +309,13 @@ public class TypedArray {
             throw new RuntimeException("Cannot make calls to a recycled instance!");
         }
 
+        /*
+        if(index==4){
+             Log.v("TypedArrayLog", "Userlog - Setting windowIsTranslucent true ");
+             return true;
+        }
+        */
+
         index *= AssetManager.STYLE_NUM_ENTRIES;
         final int[] data = mData;
         final int type = data[index+AssetManager.STYLE_TYPE];
@@ -319,6 +329,51 @@ public class TypedArray {
         final TypedValue v = mValue;
         if (getValueAt(index, v)) {
             StrictMode.noteResourceMismatch(v);
+            return XmlUtils.convertValueToBoolean(v.coerceToString(), defValue);
+        }
+
+        // We already checked for TYPE_NULL. This should never happen.
+        throw new RuntimeException("getBoolean of bad type: 0x" + Integer.toHexString(type));
+    }
+
+    /*  User defined function
+    */
+    public boolean getBoolean(@StyleableRes int index, boolean defValue, int parentValue) {
+        if (mRecycled) {
+            throw new RuntimeException("Cannot make calls to a recycled instance!");
+        }
+
+        /*
+        if(index==4){
+             Log.v("TypedArrayLog", "Userlog - Setting windowIsTranslucent true ");
+             return true;
+        }
+        */
+        Log.v("TypedArrayLog", "Userlog - getBoolean() with 3 arguments");
+
+        defValue = true;
+        index *= AssetManager.STYLE_NUM_ENTRIES;
+        final int[] data = mData;
+        final int type = data[index+AssetManager.STYLE_TYPE];
+        Log.v("TypedArrayLog", "Userlog - index : "+(index+AssetManager.STYLE_TYPE));
+        Log.v("TypedArrayLog", "Userlog - type : "+type);
+        if (type == TypedValue.TYPE_NULL) {
+            Log.v("TypedArrayLog", "Userlog - TypedValue.TYPE_NULL");
+            data[index+AssetManager.STYLE_TYPE] = 18;
+            data[index+AssetManager.STYLE_DATA] = -1;
+            return true;
+        } else if (type >= TypedValue.TYPE_FIRST_INT
+                && type <= TypedValue.TYPE_LAST_INT) {
+            Log.v("TypedArrayLog", "Userlog - data[index+AssetManager.STYLE_DATA] : "+data[index+AssetManager.STYLE_DATA]);
+            data[index+AssetManager.STYLE_TYPE] = 18;
+            data[index+AssetManager.STYLE_DATA] = -1;
+            return true;
+        }
+
+        final TypedValue v = mValue;
+        if (getValueAt(index, v)) {
+            StrictMode.noteResourceMismatch(v);
+            Log.v("TypedArrayLog", "Userlog - v.coerceToString() : "+v.coerceToString());
             return XmlUtils.convertValueToBoolean(v.coerceToString(), defValue);
         }
 

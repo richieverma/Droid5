@@ -233,6 +233,7 @@ easier.
         <item name="textAppearanceInverse">@style/TextAppearance.DeviceDefault.Inverse</item>
     </style>
 
+
     <!-- Variant of {@link #Theme_DeviceDefault_Dialog} that has a nice minimum width for a
     regular dialog. -->
     <style name="Theme.DeviceDefault.Dialog.MinWidth" parent="Theme.Material.Dialog.MinWidth" />
@@ -299,7 +300,17 @@ easier.
     </style>
 
     <style name="Theme.DeviceDefault.SearchBar" parent="Theme.Material.SearchBar" />
-    <style name="Theme.DeviceDefault.Dialog.NoFrame" parent="Theme.Material.Dialog.NoFrame" />
+    <style name="Theme.DeviceDefault.Dialog.NoFrame" parent="Theme.Material.Light">
+        <item name="windowFrame">@null</item>
+        <item name="windowTitleStyle">@style/DialogWindowTitle</item>
+        <item name="windowBackground">@color/transparent</item>
+        <item name="windowIsFloating">true</item>
+        <item name="windowContentOverlay">@null</item>
+        <item name="windowAnimationStyle">@null</item>
+        <item name="windowIsTranslucent">true</item>
+        <item name="windowCloseOnTouchOutside">true</item>
+        <item name="windowSoftInputMode">stateUnspecified|adjustPan</item>
+    </style>
 
     <!-- Variant of {@link #Theme_DeviceDefault} with a light-colored style -->
     <style name="Theme.DeviceDefault.Light" parent="Theme.Material.Light" >
@@ -474,15 +485,25 @@ easier.
     <!-- DeviceDefault light theme for dialog windows and activities. This changes the window to be
     floating (not fill the entire screen), and puts a frame around its contents. You can set this
     theme on an activity if you would like to make an activity that looks like a Dialog.-->
-    <style name="Theme.DeviceDefault.Light.Dialog" parent="Theme.Material.Light.Dialog" >
-        <item name="windowTitleStyle">@style/DialogWindowTitle.DeviceDefault.Light</item>
+    <style name="Theme.DeviceDefault.Light.Dialog" >
+      <item name="android:windowIsTranslucent">true</item>         <!--set manually-->
+<!--
+       <item name="android:windowIsFloating">true</item>
+       <item name="windowContentOverlay">@null</item>
+       <item name="android:backgroundDimEnabled">false</item>
+       <item name="android:colorBackgroundCacheHint">@null</item>
+       <item name="android:windowFrame">@null</item>
+
+     -->
+      <!--  <item name="windowTitleStyle">@style/DialogWindowTitle.DeviceDefault.Light</item>
+        <item name="windowSoftInputMode">stateUnspecified|adjustPan</item>
         <item name="windowAnimationStyle">@style/Animation.DeviceDefault.Dialog</item>
 
         <item name="buttonBarStyle">@style/DeviceDefault.Light.ButtonBar.AlertDialog</item>
         <item name="borderlessButtonStyle">@style/Widget.DeviceDefault.Light.Button.Borderless.Small</item>
 
         <item name="textAppearance">@style/TextAppearance.DeviceDefault</item>
-        <item name="textAppearanceInverse">@style/TextAppearance.DeviceDefault.Inverse</item>
+        <item name="textAppearanceInverse">@style/TextAppearance.DeviceDefault.Inverse</item> -->
     </style>
 
     <!-- Variant of {@link #Theme_DeviceDefault_Light_Dialog} that has a nice minimum width for a

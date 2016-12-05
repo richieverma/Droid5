@@ -1336,6 +1336,16 @@ public abstract class Window {
         return;
     }
 
+    /* User defined method for setting mIsTranslucent
+    */
+    public void setIsTranslucent(boolean value) {
+        return;
+    }
+
+    public boolean isTranslucent() {
+        return false;
+    }
+
     /**
      * Variation on
      * {@link #setContentView(View, android.view.ViewGroup.LayoutParams)}

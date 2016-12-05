@@ -6938,6 +6938,7 @@ public final class ViewRootImpl implements ViewParent,
 
     void changeCanvasOpacity(boolean opaque) {
         Log.d(mTag, "changeCanvasOpacity: opaque=" + opaque);
+        Log.v("ViewRootImplLog","Userlog - changeCanvasOpacity called with opaque : "+opaque);
         if (mAttachInfo.mHardwareRenderer != null) {
             mAttachInfo.mHardwareRenderer.setOpaque(opaque);
         }

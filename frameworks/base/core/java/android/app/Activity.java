@@ -2387,10 +2387,12 @@ public class Activity extends ContextThemeWrapper
      */
     private void initWindowDecorActionBar() {
         Window window = getWindow();
-
         // Initializing the window decor can change window feature flags.
         // Make sure that we have the correct set before performing the test below.
         window.getDecorView();
+        Log.v("ActivityLog", "Userlog - window mIsTranslucent = "+window.isTranslucent());
+
+
 
         if (isChild() || !window.hasFeature(Window.FEATURE_ACTION_BAR) || mActionBar != null) {
             return;
@@ -2413,6 +2415,7 @@ public class Activity extends ContextThemeWrapper
      * @see #setContentView(android.view.View, android.view.ViewGroup.LayoutParams)
      */
     public void setContentView(@LayoutRes int layoutResID) {
+        Log.v("ActivityLog", "Userlog - setContentView called within activity. Theme : "+mActivityInfo.theme);
         getWindow().setContentView(layoutResID);
         initWindowDecorActionBar();
     }
@@ -2433,6 +2436,7 @@ public class Activity extends ContextThemeWrapper
      * @see #setContentView(android.view.View, android.view.ViewGroup.LayoutParams)
      */
     public void setContentView(View view) {
+        Log.v("ActivityLog", "Userlog - setContentView called within activity. Theme : "+mActivityInfo.theme);
         getWindow().setContentView(view);
         initWindowDecorActionBar();
     }
@@ -2449,6 +2453,7 @@ public class Activity extends ContextThemeWrapper
      * @see #setContentView(int)
      */
     public void setContentView(View view, ViewGroup.LayoutParams params) {
+        Log.v("ActivityLog", "Userlog - setContentView called within activity. Theme : "+mActivityInfo.theme);
         getWindow().setContentView(view, params);
         initWindowDecorActionBar();
     }
@@ -4023,13 +4028,45 @@ public class Activity extends ContextThemeWrapper
 
     @Override
     public void setTheme(int resid) {
+      Log.v("ActivityLog", "Userlog - setTheme called");
         super.setTheme(resid);
         mWindow.setTheme(resid);
+    }
+
+    public void checkTypedArray(int resid){
+      int[] attrs = {android.R.attr.windowIsTranslucent, android.R.attr.windowIsFloating, android.R.attr.colorPrimary, android.R.attr.background, android.R.attr.colorBackgroundCacheHint
+};
+      int[] attrs2 = {android.R.attr.windowIsTranslucent};
+
+      TypedArray ta = obtainStyledAttributes(attrs);
+      TypedArray ta2 = obtainStyledAttributes(com.android.internal.R.style.Theme_Translucent, attrs2);
+      TypedArray ta3 = obtainStyledAttributes(attrs2);
+
+
+      int colorPrimary = ta.getColor(2,Color.GREEN);
+      boolean windowIsTranslucent = ta.getBoolean(0,false);
+      boolean windowIsFloating = ta.getBoolean(1,false);
+      int backgroundColor = ta.getColor(3, Color.GREEN);
+      boolean colorBackgroundCacheHint = ta.getBoolean(4,false);
+
+      // Do some logging to see if we have retrieved correct values
+      Log.v("ActivityLog","Userlog - Retrieved typed array ta2 : "+ta2.toString());
+      Log.v("ActivityLog","Userlog - Retrieved typed array ta3 : "+ta3.toString());
+
+      Log.v("ActivityLog","Userlog - Retrieved colorPrimary : "+ colorPrimary);
+      Log.v("ActivityLog","Userlog - Retrieved windowIsTranslucent : "+ windowIsTranslucent);
+      Log.v("ActivityLog","Userlog - Retrieved backgroundColor : "+ Integer.toHexString(backgroundColor));
+
+      ta.recycle();
+      ta2.recycle();
+      ta3.recycle();
     }
 
     @Override
     protected void onApplyThemeResource(Resources.Theme theme, @StyleRes int resid,
             boolean first) {
+        Log.v("ActivityLog", "Userlog - onApplyThemeResource called with theme : "+theme+", first :"+first);
+
         if (mParent == null) {
             super.onApplyThemeResource(theme, resid, first);
         } else {
@@ -4041,20 +4078,32 @@ public class Activity extends ContextThemeWrapper
             theme.applyStyle(resid, false);
         }
 
+        /*
+        if(this.getApplicationContext().getGlobalOpenInOverlayWindow()){
+          Log.v("ActivityLog", "Userlog - onApplyThemeResource setting custom theme with windowIsTranslucent true");
+          theme.applyStyle(com.android.internal.R.style.Theme_Translucent, true);
+          checkTypedArray(resid);
+        }
+        */
         // Get the primary color and update the TaskDescription for this activity
         TypedArray a = theme.obtainStyledAttributes(
                 com.android.internal.R.styleable.ActivityTaskDescription);
+
+        //Log.v("ActivityLog", "Userlog - mTaskDescription.getPrimaryColor() : "+mTaskDescription.getPrimaryColor());
         if (mTaskDescription.getPrimaryColor() == 0) {
             int colorPrimary = a.getColor(
                     com.android.internal.R.styleable.ActivityTaskDescription_colorPrimary, 0);
+            //Log.v("ActivityLog", "Userlog - colorPrimary : "+colorPrimary+", alpha : "+Color.alpha(colorPrimary));
             if (colorPrimary != 0 && Color.alpha(colorPrimary) == 0xFF) {
                 mTaskDescription.setPrimaryColor(colorPrimary);
             }
         }
         // For dev-preview only.
+        //Log.v("ActivityLog", "Userlog - mTaskDescription.getBackgroundColor()  : "+mTaskDescription.getBackgroundColor());
         if (mTaskDescription.getBackgroundColor() == 0) {
             int colorBackground = a.getColor(
                     com.android.internal.R.styleable.ActivityTaskDescription_colorBackground, 0);
+            //Log.v("ActivityLog", "Userlog - colorPrimary : "+colorBackground+", alpha : "+Color.alpha(colorBackground));
             if (colorBackground != 0 && Color.alpha(colorBackground) == 0xFF) {
                 mTaskDescription.setBackgroundColor(colorBackground);
             }
@@ -5999,6 +6048,7 @@ public class Activity extends ContextThemeWrapper
      */
     @SystemApi
     public void convertFromTranslucent() {
+      Log.v("ActivityLog", "Userlog - convertFromTranslucent called");
         try {
             mTranslucentCallback = null;
             if (ActivityManagerNative.getDefault().convertFromTranslucent(mToken)) {
@@ -6037,6 +6087,8 @@ public class Activity extends ContextThemeWrapper
     @SystemApi
     public boolean convertToTranslucent(TranslucentConversionListener callback,
             ActivityOptions options) {
+
+        Log.v("ActivityLog", "Userlog - convertToTranslucent called with TranslucentConversionListener : "+callback+", ActivityOptions : "+options);
         boolean drawComplete;
         try {
             mTranslucentCallback = callback;
@@ -6619,7 +6671,7 @@ public class Activity extends ContextThemeWrapper
         mFragments.attachHost(null /*parent*/);
         Log.v("ActivityLog", "Userlog - attach() called");
         Log.v("ActivityLog", "Userlog - Intent within attach() has parameter parentId : "+intent.getIntExtra("parentId",-1));
-        Log.v("ActivityLog", "Userlog - Window within attach() : "+window);
+        Log.v("ActivityLog", "Userlog - info.theme : "+info.theme);
 
         mWindow = new PhoneWindow(this, window);
         //mWindow = new PhoneWindow(this, window, intent);
@@ -6633,7 +6685,9 @@ public class Activity extends ContextThemeWrapper
         */
         if(intent.getIntExtra("parentId",-1)!=-1){
           mWindow.setOpenInOverlayWindow(true);
+          //mWindow.setIsTranslucent(true);
           context.getApplicationContext().setGlobalOpenInOverlayWindow(true);
+          this.convertToTranslucent(null,null);
         }
 
 

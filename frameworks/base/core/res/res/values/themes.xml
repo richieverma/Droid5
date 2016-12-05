@@ -723,6 +723,20 @@ please see themes_device_defaults.xml.
         <item name="preferencePanelStyle">@style/PreferencePanel.Dialog</item>
     </style>
 
+    <!-- User defined theme -->
+    <style name="OverlayTheme">
+        <item name="windowFrame">@null</item>
+        <item name="windowTitleStyle">@style/DialogWindowTitle</item>
+        <item name="windowBackground">@drawable/panel_background</item>
+        <item name="windowIsFloating">true</item>
+        <item name="windowContentOverlay">@null</item>
+        <item name="windowAnimationStyle">@style/Animation.Dialog</item>
+        <item name="windowSoftInputMode">stateUnspecified|adjustPan</item>
+        <item name="windowCloseOnTouchOutside">@bool/config_closeDialogWhenTouchOutside</item>
+        <item name="windowActionModeOverlay">true</item>
+    </style>
+
+
     <!-- Variant of {@link Theme_Dialog} that does not include a frame (or background).
          The view hierarchy of the dialog is responsible for drawing all of
          its pixels. -->
