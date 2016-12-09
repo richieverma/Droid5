@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 	}	
 	private BroadcastReceiver onNotice;
 	public void getListOfAllIntents() {
-	    Log.v("ChatHeadService","Content Chooser");
+	    	Log.v("ChatHeadService","Content Chooser");
 		PackageManager pm = getPackageManager();
 		
 		//Create new Intent with specific action and category to get a list of applications
@@ -53,6 +53,7 @@ public class MainActivity extends Activity {
 		Collections.sort(launchables,new ResolveInfo.DisplayNameComparator(pm));
 
 		targetedShareIntents = new ArrayList<Intent>();
+		targetedShareIntents.add(new Intent());
 		
 		for (ResolveInfo launch : launchables) {
 			String packageName = launch.activityInfo.packageName;
@@ -60,6 +61,8 @@ public class MainActivity extends Activity {
 			Intent targetedShareIntent = new Intent();
 			targetedShareIntent.setPackage(packageName);
 			targetedShareIntent.putExtra("parentId",1);
+			targetedShareIntent.setAction(Intent.ACTION_MAIN);
+			targetedShareIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 			//Add package to Intent Chooser list
 			targetedShareIntents.add(targetedShareIntent);
 		}
